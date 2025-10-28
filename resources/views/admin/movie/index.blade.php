@@ -15,6 +15,7 @@
         </div>
         <h5 class="mb-5">Data Film</h5>
         <table class="table table-bordered" id="tableMovie">
+            <thead>
             <tr class="text-center">
                 <th>#</th>
                 <th>Poster</th>
@@ -22,6 +23,7 @@
                 <th>Status Aktif</th>
                 <th>Aksi</th>
             </tr>
+            </thead>
         </table>
         <div class="modal fade" id="modaldetail" tabindex="-1" aria-labelledby="modaldetailLabel" aria-hidden="true">
             <div class="modal-dialog">

@@ -14,7 +14,8 @@
             <a href="{{ route('admin.cinemas.create') }}" class="btn btn-success">Tambah Data</a>
         </div>
         <h5 class="mt-3">Data Bioskop</h5>
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="tableCinema">
+            <thead>
             <tr>
                 <th>No</th>
                 <th>Nama Bioskop</th>
@@ -23,23 +24,32 @@
             </tr>
             {{-- $cinemas dari impact --}}
             {{-- foreach karena $cinemas pake ::all() data nya lebih dari satu dan berbentuk array --}}
-            @foreach ($cinemas as $key => $item)
-                <tr>
-                    {{-- $key -> index array dari 0 --}}
-                    <td>{{ $key + 1 }}</td>
-                    {{-- name dan location dari fillable --}}
-                    <td>{{ $item['name'] }}</td>
-                    <td>{{ $item['location'] }}</td>
-                    <td class="d-flex gap-2">
-                        <a href="{{ route('admin.cinemas.edit', $item['id']) }}" class="btn btn-secondary">Edit</a>
-                        <form action="{{ route('admin.cinemas.delete', $item['id']) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </table>
+            </thead>
+        </table>       
     </div>
 @endsection
+{{-- mengisi stack  --}}
+@push('script')
+    <script>
+        //$ di js : memanggil jquery
+    $(function(){
+        $("#tableCinema").DataTable({
+            processing: true, //tanda load pas lg proses data
+            serverSide: true, // tanda di proses dibelakang (controller)
+            ajax: "{{ route('admin.cinemas.datatables') }}", //memanggil route 
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false,
+                    searchable: false },
+                { data: 'name', name: 'name', orderable: true,
+                    searchable: true},
+                 { data: 'location', name: 'location', orderable: true,
+                    searchable: true },
+                 { data: 'btnActions', name: 'btnActions', orderable: false,
+                    searchable: false},
+                
+            ]
+        })
+    })
+    </script>
+@endpush
+

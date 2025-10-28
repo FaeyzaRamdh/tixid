@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UserExport;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -101,6 +102,43 @@ class UserController extends Controller
         $users = User::whereIn('role', ['admin','staff'])->get();
         return view('admin.user.index', compact('users'));
     }
+
+    public function datatables()
+    {
+        //jika data yang diambil tdk ada relasi gnakan query jila ada pake with []
+        $users = User::whereIn('role', ['admin', 'staff']);
+        //of mengambil data dari eloquent model yang akan diproses datanya
+        return DataTables::of($users)
+        ->addIndexColumn()
+        ->addColumn('role', function($user){
+            if ($user->role == 'admin'){
+                return '<span class="badge badge-primary">Admin</span>';
+            } else {
+                return '<span class="badge badge-success">Staff</span>';
+            }
+                return '<span class="badge bg-secondary">'. ucfirst($user->role) .'</span>';
+        })
+         ->filterColumn('role', function($query, $keyword) {
+            $query->where('role', 'like', "%{$keyword}%");
+        })
+
+        ->addColumn('btnActions', function($user){
+            $btnEdit = '<a href="'. route('admin.users.edit', $user['id']) .'" class="btn btn-secondary">Edit</a>';
+            $btnDelete = ' <form action="' . route('admin.users.delete', $user['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>';
+
+        
+            return '<div class="d-flex gap-2">'. $btnEdit . $btnDelete . '</div'; 
+        })
+        //daftarkan nama dari addColumn untuk di panggil di js datatablesnya
+        ->rawColumns(['role', 'btnActions'])
+        //ubah query jadi json agar bisa dibaca js
+        ->make(true);
+    }
+
 
     /**
      * Show the form for creating a new resource.

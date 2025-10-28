@@ -6,6 +6,7 @@ use App\Models\Promo;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PromoExport;
+use Yajra\DataTables\Facades\DataTables;
 
 class PromoController extends Controller
 {
@@ -17,6 +18,38 @@ class PromoController extends Controller
         $promos = Promo::all();
         return view('staff.promo.index', compact('promos'));
     }
+
+    public function datatables()
+    {
+        //jika data yang diambil tdk ada relasi gnakan query jila ada pake with []
+        $promos = Promo::query();
+        //of mengambil data dari eloquent model yang akan diproses datanya
+        return DataTables::of($promos)
+        ->addIndexColumn() 
+        ->addColumn('type', function($promo){
+            if($promo['type'] == 'rupiah'){
+                return '<small class="badge badge-primary">Rp' . number_format($promo['discount'], 0, ',','.') . '</small>';
+            } else{
+                return '<small class="badge badge-primary">' . $promo['discount'] . ' %</small>';
+            }
+        
+        })
+        ->addColumn('btnActions', function($promo){
+            $btnEdit = '<a href="'. route('staff.promos.edit', $promo['id']) .'" class="btn btn-secondary">Edit</a>';
+            $btnDelete = ' <form action="' . route('staff.promos.delete', $promo['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>';
+
+            return '<div class="d-flex gap-2">'. $btnEdit . $btnDelete . '</div'; 
+        })
+        //daftarkan nama dari addColumn untuk di panggil di js datatablesnya
+        ->rawColumns(['btnActions','type'])
+        //ubah query jadi json agar bisa dibaca js
+        ->make(true);
+    }
+
 
     /**
      * Show the form for creating a new resource.

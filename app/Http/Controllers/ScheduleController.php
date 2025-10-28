@@ -7,6 +7,7 @@ use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ScheduleExport;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class ScheduleController extends Controller
@@ -28,6 +29,49 @@ class ScheduleController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+    
+    public function datatables()
+    {
+        //jika data yang diambil tdk ada relasi gnakan query jila ada pake with []
+        $schedules = Schedule::with(['cinema', 'movie'])->get();
+        return DataTables::of($schedules)
+        ->addIndexColumn()
+        ->addColumn('cinemaName', function($schedule){
+            return $schedule->cinema->name;
+        })
+           ->addColumn('movieTitle', function($schedule){
+            return $schedule->movie->title;
+           })
+        ->addColumn('priceFormatted', function ($schedule){
+            return 'Rp' . number_format($schedule->price, 0, ',','.');
+        })
+        ->addColumn('hoursList', function($schedule){
+            $hours = '<ul>';
+            foreach($schedule->hours as $hour){
+                $hours .= '<li>' . date('H:i', strtotime($hour)) . '</li>';
+            }
+            $hours .='</ul>';
+            return $hours;
+        })
+
+        ->addColumn('btnActions', function($schedule){
+            $btnEdit = '<a href="'. route('staff.schedules.edit', $schedule['id']) .'" class="btn btn-secondary">Edit</a>';
+            $btnDelete = ' <form action="' . route('staff.schedules.delete', $schedule['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>';
+
+        
+            return '<div class="d-flex gap-2">'. $btnEdit . $btnDelete . '</div'; 
+        })
+        //daftarkan nama dari addColumn untuk di panggil di js datatablesnya
+        ->rawColumns(['cinemaName', 'movieTitle', 'priceFormatted', 'hoursList', 'btnActions'])
+        //ubah query jadi json agar bisa dibaca js
+        ->make(true);
+    }
+
+
     public function create()
     {
         //

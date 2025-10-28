@@ -16,7 +16,8 @@
         @endif
 
 
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="tableSchedule">
+            <thead>
             <tr>
                 <th>#</th>
                 <th>Nama Bioskop</th>
@@ -24,28 +25,7 @@
                 <th>Jam Tayang</th>
                 <th>Aksi</th>
             </tr>
-            @foreach ($schedules as $key => $schedule)
-                <tr>
-                    <td>{{ $key + 1 }}</td>
-                    <td>{{ $schedule['cinema']['name'] }}</td>
-                    <td>{{ $schedule['movie']['title'] }}</td>
-                    <td>
-                        <ul>
-                            @foreach ($schedule->hours as $hour)
-                                <li>{{ $hour }}</li>
-                            @endforeach
-                        </ul>
-                    </td>
-                    <td class="d-flex">
-                        <a href="{{ route('staff.schedules.edit', $schedule->id) }}" class="btn btn-primary">Edit</a>
-                        <form action="{{ route('staff.schedules.delete', $schedule->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger ms-2">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
+        </thead>
         </table>
     </div>
 
@@ -124,6 +104,31 @@
 @endsection
 
 @push('script')
+    <script>
+        //$ di js : memanggil jquery
+    $(function(){
+        $("#tableSchedule").DataTable({
+            processing: true, //tanda load pas lg proses data
+            serverSide: true, // tanda di proses dibelakang (controller)
+            ajax: "{{ route('staff.schedules.datatables') }}", //memanggil route 
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false,
+                    searchable: false },
+                { data: 'cinemaName', name: 'cinemaName', orderable: true,
+                    searchable: true},
+                 { data: 'movieTitle', name: 'movieTitle', orderable: true,
+                    searchable: true },
+                 { data: 'priceFormatted', name: 'priceFormatted', orderable: true,
+                    searchable: true},
+                 { data: 'hoursList', name: 'hoursList', orderable: false,
+                    searchable: false },
+                  { data: 'btnActions', name: 'btnActions', orderable: false,
+                    searchable: false},
+                
+            ]
+        })
+    })
+    </script>
     <script>
         function addInput() {
             let content = '<input type="time" name="hours[]" class="form-control mt-3">';

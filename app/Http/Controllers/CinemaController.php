@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Schedule;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\CinemaExport;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class CinemaController extends Controller
@@ -22,6 +23,30 @@ class CinemaController extends Controller
         // isi compact() adalah nama variable yang akan dikirim
         return view('admin.cinema.index', compact('cinemas'));
     }
+    
+    public function datatables()
+    {
+        //jika data yang diambil tdk ada relasi gnakan query jila ada pake with []
+        $cinemas = Cinema::query();
+        //of mengambil data dari eloquent model yang akan diproses datanya
+        return DataTables::of($cinemas)
+        ->addIndexColumn()
+        ->addColumn('btnActions', function($cinema){
+            $btnEdit = '<a href="'. route('admin.cinemas.edit', $cinema['id']) .'" class="btn btn-secondary">Edit</a>';
+            $btnDelete = ' <form action="' . route('admin.cinemas.delete', $cinema['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>';
+
+            return '<div class="d-flex gap-2">'. $btnEdit . $btnDelete . '</div'; 
+        })
+        //daftarkan nama dari addColumn untuk di panggil di js datatablesnya
+        ->rawColumns(['btnActions'])
+        //ubah query jadi json agar bisa dibaca js
+        ->make(true);
+    }
+
 
     /**
      * Show the form for creating a new resource.
