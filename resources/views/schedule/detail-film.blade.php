@@ -28,7 +28,7 @@
                         <tr>
                             <td><b class="text-secondary">Rating Usia</b></td>
                             <td class="px-3"></td>
-                            <td><span class="badge bg-danger">{{ $movie['age_rating'] }}</span></td>
+                            <td><span class="badge bg-danger">{{ $movie['age_rating'] }} + </span> </td>
                         </tr>
                     </table>
                 </div>
@@ -76,6 +76,15 @@
                 } else{
                    $sortirHarga = 'ASC';
                 }
+
+                      if (request()->get('sortirAlfabet') == 'ASC') {
+                   $sortirAlfabet = 'DESC';
+                } elseif (request()->get('sortirAlfabet') == 'DESC') {
+                   $sortirAlfabet = 'ASC';
+                } else{
+                   $sortirAlfabet = 'ASC';
+                }
+                
                 @endphp
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -85,7 +94,7 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {{-- querry parrams (?) untuk search sortir limit --}}
                         <li><a href="?sortirHarga={{ $sortirHarga }}" class="dropdown-item">Harga</a></li>
-                        <li><a href="#" class="dropdown-item">Alphabet</a></li>
+                        <li><a href="?sortirAlfabet={{ $sortirAlfabet }}" class="dropdown-item">Alphabet</a></li>
                     </ul>
                 </div>
             </div>

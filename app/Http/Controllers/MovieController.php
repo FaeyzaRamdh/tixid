@@ -8,6 +8,7 @@ use App\Models\Schedule;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MovieExport;
+use Yajra\DataTables\Facades\DataTables;
 
 class MovieController extends Controller
 {
@@ -18,6 +19,52 @@ class MovieController extends Controller
     {
         $movies = Movie::all();
         return view('admin.movie.index', compact('movies'));
+    }
+
+    public function datatables()
+    {
+        //jika data yang diambil tdk ada relasi gnakan query jila ada pake with []
+        $movies = Movie::query();
+        //of mengambil data dari eloquent model yang akan diproses datanya
+        return DataTables::of($movies)
+        ->addIndexColumn()
+        ->addColumn('imgPoster', function($movie){
+            $imgUrl = asset('storage/' . $movie['poster']);
+            return '<img src="' . $imgUrl . '" width="120">';
+        })
+        ->addColumn('activeBadge', function($movie){
+            if ($movie['activated'] == 1){
+                return '<span class="badge bg-success">Aktif</span>';
+            } else {
+                return '<span class="badge bg-secondary">Non Aktif</span>';
+            }
+        })
+        ->addColumn('btnActions', function($movie){
+            $btnDetail = '<button class="btn btn-secondary me-2" onclick=\'showModal(' . json_encode($movie) . ')\'>Detail</button>';
+            $btnEdit = '<a href="'. route('admin.movies.edit', $movie['id']) .'" class="btn btn-secondary">Edit</a>';
+            $btnDelete = ' <form action="' . route('admin.movies.delete', $movie['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>';
+
+            if ($movie['activated'] == 1){
+                $btnNonAktif = ' <form action="' . route('admin.movies.nonaktif', $movie['id']) .'" method="POST">'.
+                        csrf_field() . 
+                        method_field('PATCH') . '
+                        <button type="submit" class="btn btn-danger">Non-Aktif</button>
+                        </form>';
+            } else {
+                $btnNonAktif = '';
+            }
+
+            return '<div class="d-flex gap-2">'. $btnDetail . $btnEdit . $btnDelete . $btnNonAktif
+            . '</div'; 
+        })
+        //daftarkan nama dari addColumn untuk di panggil di js datatablesnya
+        ->rawColumns(['imgPoster', 'activeBadge', 'btnActions'])
+        //ubah query jadi json agar bisa dibaca js
+        ->make(true);
     }
 
     public function home()
@@ -59,8 +106,20 @@ class MovieController extends Controller
         } else {
             $movie = Movie::where('id', $movie_id)->with('schedules', 'schedules.cinema')->first();
         }
-        return view('schedule.detail-film', compact('movie'));
+
+        $sortirAlfabet = $request->sortirAlfabet;
+        if ($sortirAlfabet == 'ASC'){
+            //karena alfabet dari nama dicinema, cinema di 'schedules.cinema' ( cinema adalah relasi dari schedules) jadi pake collection untk urutannya
+        $movie->schedules = $movie->schedules->sortBy(function($schedule){
+            return $schedule->cinema->name;
+        })->values();
+    }elseif ($sortirAlfabet == 'DESC'){
+        $movie->schedules = $movie->schedules->sortByDesc(function($schedule){
+            return $schedule->cinema->name;
+        })->values();
     }
+         return view('schedule.detail-film', compact('movie'));
+}
 
     public function nonaktif($id)
     {

@@ -75,13 +75,14 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
 
     //isi data film
     Route::prefix('/movies')->name('movies.')->group(function () {
+        Route::get('/datatables', [MovieController::class,'dataTables'])->name('datatables');
         Route::get('/', [MovieController::class,'index'])->name('index');
         Route::get('/create', [MovieController::class,'create'])->name('create');
         Route::post('/store', [MovieController::class,'store'])->name('store');
         Route::get('/edit/{id}', [MovieController::class,'edit'])->name('edit');
         Route::put('/update/{id}', [MovieController::class,'update'])->name('update');
         Route::delete('/delete/{id}', [MovieController::class,'destroy'])->name('delete');
-        Route::put('/nonaktif/{id}', [MovieController::class,'nonaktif'])->name('nonaktif');
+        Route::patch('/nonaktif/{id}', [MovieController::class,'nonaktif'])->name('nonaktif');
         Route::get('/trash', [MovieController::class, 'trash'])->name('trash');
         Route::patch('/restore/{id}', [MovieController::class, 'restore'])->name('restore');
         Route::delete('/delete-permanent/{id}', [MovieController::class, 'deletePermanent'])->name('delete_permanent');

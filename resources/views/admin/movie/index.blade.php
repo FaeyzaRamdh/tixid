@@ -14,7 +14,7 @@
             <a href="{{ route('admin.movies.create') }}" class="btn btn-success">Tambah Data</a>
         </div>
         <h5 class="mb-5">Data Film</h5>
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="tableMovie">
             <tr class="text-center">
                 <th>#</th>
                 <th>Poster</th>
@@ -22,38 +22,6 @@
                 <th>Status Aktif</th>
                 <th>Aksi</th>
             </tr>
-            @foreach ($movies as $key => $item)
-                <tr class="text-center">
-                    <td>{{ $key + 1 }}</td>
-                    <td>
-                        <img src="{{ asset('storage/' . $item['poster']) }}" width="120" alt="Gambar">
-                    </td>
-                    <td>{{ $item['title'] }}</td>
-                    <td class="text-center">
-                        @if ($item['activated'] == 1)
-                            <span class="badge badge-success">Aktif</span>
-                        @else
-                            <span class="badge badge-danger">Tidak Aktif</span>
-                        @endif
-                    </td>
-                    <td class="d-flex gap-2 justify-content-center">
-                        <button class="btn btn-primary me-1" onclick="showmodal({{ $item }})">Detail</button>
-                        <a href="{{ route('admin.movies.edit', $item['id']) }}" class="btn btn-secondary">Edit</a>
-                        <form action="{{ route('admin.movies.delete', $item['id']) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Hapus</button>
-                        </form>
-                        <form action="{{ route('admin.movies.nonaktif', $item['id']) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-                            @if ($item['activated'] == 1)
-                                <button class="btn btn-warning">Non-Aktif Film</button>
-                            @endif
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
         </table>
         <div class="modal fade" id="modaldetail" tabindex="-1" aria-labelledby="modaldetailLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -72,9 +40,31 @@
         </div>
     </div>
 @endsection
-
+{{-- mengisi stack  --}}
 @push('script')
     <script>
+        //$ di js : memanggil jquery
+    $(function(){
+        $("#tableMovie").DataTable({
+            processing: true, //tanda load pas lg proses data
+            serverSide: true, // tanda di proses dibelakang (controller)
+            ajax: "{{ route('admin.movies.datatables') }}", //memanggil route 
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false,
+                    searchable: false },
+                { data: 'imgPoster', name: 'imgPoster', orderable: false,
+                    searchable: false},
+                 { data: 'title', name: 'title', orderable: true,
+                    searchable: true },
+                { data: 'activeBadge', name: 'activeBadge', orderable: true,
+                    searchable: true},
+                 { data: 'btnActions', name: 'btnActions', orderable: false,
+                    searchable: false},
+                
+            ]
+        })
+    })
+
         function showmodal(item) {
             let image = "{{ asset('storage/') }}" + "/" + item.poster;
             let content = `
