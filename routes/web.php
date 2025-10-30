@@ -5,12 +5,15 @@ use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [MovieController::class,'home'])->name('home');
 Route::get('/schedules/{movie_id}', [MovieController::class, 'movieSchedule'])->name('schedules.detail');
 Route::get('/movies/active', [MovieController::class,'homeMovie'])->name('home.movies.active');
+Route::get('/schedules/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'] )->name 
+('schedules.show.seats');
 
 
 Route::get('/login', function () {

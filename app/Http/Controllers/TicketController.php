@@ -10,6 +10,13 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function showSeats($scheduleId, $hourId)
+    {
+        $schedule = Schedule::find($scheduleId);
+        $hour = $schedule['hours'][$hourId] ?? '';
+        return view('schedule.row-seats', compact('schedule', 'hour'));
+    }
+
     public function index()
     {
         //

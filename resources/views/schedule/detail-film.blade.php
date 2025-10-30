@@ -69,22 +69,22 @@
                 </div>
 
                 @php
-                if (request()->get('sortirHarga') == 'ASC') {
-                   $sortirHarga = 'DESC';
-                } elseif (request()->get('sortirHarga') == 'DESC') {
-                   $sortirHarga = 'ASC';
-                } else{
-                   $sortirHarga = 'ASC';
-                }
+                    if (request()->get('sortirHarga') == 'ASC') {
+                        $sortirHarga = 'DESC';
+                    } elseif (request()->get('sortirHarga') == 'DESC') {
+                        $sortirHarga = 'ASC';
+                    } else {
+                        $sortirHarga = 'ASC';
+                    }
 
-                      if (request()->get('sortirAlfabet') == 'ASC') {
-                   $sortirAlfabet = 'DESC';
-                } elseif (request()->get('sortirAlfabet') == 'DESC') {
-                   $sortirAlfabet = 'ASC';
-                } else{
-                   $sortirAlfabet = 'ASC';
-                }
-                
+                    if (request()->get('sortirAlfabet') == 'ASC') {
+                        $sortirAlfabet = 'DESC';
+                    } elseif (request()->get('sortirAlfabet') == 'DESC') {
+                        $sortirAlfabet = 'ASC';
+                    } else {
+                        $sortirAlfabet = 'ASC';
+                    }
+
                 @endphp
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -102,29 +102,75 @@
             <div class="mb-5">
                 @foreach ($movie['schedules'] as $schedule)
                     <div class="w-100 my-3">
-                        {{--kiri--}}
+                        {{-- kiri --}}
                         <div class="d-flex justify-content-between">
                             <div>
-                            <i class="fas solid fa-building"></i><b class="ms-2"></b>{{ $schedule['cinema']['name'] }}</b>
-                            <br>
-                            <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
+                                <i class="fas solid fa-building"></i><b
+                                    class="ms-2"></b>{{ $schedule['cinema']['name'] }}</b>
+                                <br>
+                                <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
+                            </div>
+                            {{-- kanan --}}
+                            <div>
+                                <b>RP. {{ number_format($schedule['price'], 0, ',', '.') }}</b>
+                            </div>
                         </div>
-                        {{-- kanan --}}
-                        <div>
-                    <b>RP. {{ number_format($schedule['price'], 0, ',', '.') }}</b>
+                        <div class="d-flex flex-wrap gap-3 ps-3 my-2">
+                            @foreach ($schedule['hours'] as $index => $hours)
+                                <div class="btn btn-outline-secondary"
+                                    onclick="selectedHour('{{ $schedule->id }}' , '{{ $index }}' , this)">
+                                    {{ $hours }}</div>
+                            @endforeach
                         </div>
+                    </div>
+                @endforeach
+                <div class="w-100 p-2 text-center fixed-bottom" id="wrapper-btn">
+                    <a href="" id="btn-ticket"><i class="fa-solid fa-ticket"></i>Beli Tiket</a>
+                </div>
             </div>
-        <div class="d-flex flex-wrap gap-3 ps-3 my-2">
-            @foreach ($schedule['hours'] as $hours)
-                <div class="btn btn-outline-primary">{{ $hours }}</div>
-            @endforeach
         </div>
     </div>
-    @endforeach
-    <div class="w-100 p-2 bg-light text-center fixed-bottom">
-        <a href=""><i class="fa-solid fa-ticket"></i>Beli Tiket</a>
-    </div>
-    </div>
-    </div>
-    </div>
 @endsection
+
+@push('script')
+<script>
+    let selectedHours = null;
+    let selectedSchedule = null;
+    let lastClickedElement = null;
+
+    function selectedHour(scheduleId, hourId, el){
+        //memindahkan data dari parameter ke var luar
+        selectedHours = hourId;
+        selectedSchedule = scheduleId;
+
+        //memberikan styling warna ke kotak jam elemen yang di klik
+        if (lastClickedElement){
+            //kalo ada jam sebelumnya yang dipillih jam sebelumnya dikembalikan tanpa warna
+            lastClickedElement.style.background = "";
+            lastClickedElement.style.color = "";
+            lastClickedElement.style.borderColor = "";
+        }
+
+        //beri warna ke elemen yang baru di klik
+        el.style.background = "#112646"; //warna biru
+        el.style.color = "white";
+        el.style.borderColor = "#112646";
+        //update last clicked element
+        lastClickedElement = el;
+
+        let btnWrapper = document.querySelector("#wrapper-btn");  
+        let btnTicket = document.querySelector("#btn-ticket"); 
+
+        btnWrapper.style.background = "#112646";
+        btnTicket.style.color = "white";
+        btnWrapper.style.borderColor = "#112646";
+
+        let url = "{{ route('schedules.show.seats', ['scheduleId' => ':schedule', 'hourId' => ':hour']) }}"
+        .replace(':schedule', scheduleId)
+        .replace(':hour', hourId)
+        //replace untuk mengganti schedule dan : ho menjadi data yang sebelumnya
+        //isi  href pada link btn tiket
+        btnTicket.href = url;
+    }
+    </script>
+@endpush
