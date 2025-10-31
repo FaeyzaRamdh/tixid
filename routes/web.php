@@ -15,6 +15,10 @@ Route::get('/movies/active', [MovieController::class,'homeMovie'])->name('home.m
 Route::get('/schedules/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'] )->name 
 ('schedules.show.seats');
 
+Route::get('/cinemas/list', [CinemaController::class, 'cinemaList'])
+->name('cinemas.list');
+
+Route::get('/cinemas/{cinemaId}/schedules', [CinemaController::class, 'cinemaSchedules'])->name('cinemas.schedules');
 
 Route::get('/login', function () {
     return view('auth.login');

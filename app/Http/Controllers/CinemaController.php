@@ -162,4 +162,26 @@ class CinemaController extends Controller
         $fileName = 'data-lokasi-bioskop.xlsx';
         return Excel::download(new CinemaExport, $fileName);
     }
+
+
+    public function cinemaList()
+    {
+     
+        $cinemas = Cinema::all();
+        return view('schedule.cinemas', compact('cinemas'));
+    }
+
+    public function cinemaSchedules($cinema_id)
+    {
+            //where has ("nama relasi , function ($q) argumen 1
+            //nama relasi wjib dua argumen func 8ntk filter pada relasi optional
+            //where has ('nama relasi')-> movie where has (' schedule) mengambil dari data film hanya memiliki relasi 
+            // (memiliki data) schedules where has ('nama relasi' funct($q-> where)) active 1 mengambil 
+            //data sscheduls yang memiliki relsai (memiliki data) movie dan nilai activated pasa movienya 1.
+
+        $schedules = Schedule::where('cinema_id' , $cinema_id)->with('movie')->whereHas('movie', function($q){
+            $q->where('activated', 1);
+        })->get();
+        return view('schedule.cinema-schedules', compact('schedules'));
+    }
 }
