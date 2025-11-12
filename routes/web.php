@@ -15,6 +15,17 @@ Route::get('/movies/active', [MovieController::class,'homeMovie'])->name('home.m
 Route::get('/schedules/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'] )->name 
 ('schedules.show.seats');
 
+Route::middleware('isUser')->group(function() {
+    // admin dashboard disimpan di group middleware afar dapat menggunakan middleware tersebut
+ Route::get('/schedules/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'] )->name 
+('schedules.show.seats');
+Route::prefix('tickets')->name('tickets.')->group(function(){
+    Route::post('/', [TicketController::class, 'store'])->name('store');
+    Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+});
+});
+
+
 Route::get('/cinemas/list', [CinemaController::class, 'cinemaList'])
 ->name('cinemas.list');
 

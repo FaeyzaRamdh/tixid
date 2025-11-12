@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\Promo;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
@@ -35,7 +37,39 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'user_id' => 'required',
+            'schedule_id' => 'required',
+            'date' => 'required',
+            'hour' => 'required',
+            'rows_of_seats' => 'required',
+            'quantity' => 'required',
+            'total_price' => 'required',
+            'service_fee' => 'required',
+        ]);
+
+        $createData = Ticket::create([
+            'user_id' => $request->user_id,
+            'schedule_id' => $request->schedule_id,
+            'date' => $request->date,
+            'hour' => $request->hour,
+            'rows_of_seats' => $request->rows_of_seats,
+            'quantity' => $request->quantity,
+            'total_price' => $request->total_price,
+            'service_fee' => $request->service_fee,
+            'activated' => 0,
+        ]);
+        return response()->json([
+            'message'  => 'Berhasil Membuat data Tiket',
+            'data' => $createData
+        ]);
+    }
+
+    public function ticketOrderPage($ticketId)
+    {
+        $ticket = Ticket::where('id', $ticketId)->with(['schedule', 'schedule.cinema', 'schedule.movie'])->first();
+        $promos = Promo::where('activated', 1)->get();
+          return view('schedule.order', compact('ticket', 'promos'));
     }
 
     /**

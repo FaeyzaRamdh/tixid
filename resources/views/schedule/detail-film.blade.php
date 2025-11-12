@@ -125,7 +125,7 @@
                     </div>
                 @endforeach
                 <div class="w-100 p-2 text-center fixed-bottom" id="wrapper-btn">
-                    <a href="" id="btn-ticket"><i class="fa-solid fa-ticket"></i>Beli Tiket</a>
+                    <a href="" id="btn-ticket"><i class="fa-solid fa-ticket"></i> Beli Tiket</a>
                 </div>
             </div>
         </div>
