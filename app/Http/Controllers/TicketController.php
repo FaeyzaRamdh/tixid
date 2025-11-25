@@ -6,6 +6,10 @@ use App\Models\Ticket;
 use App\Models\Promo;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
+use App\Models\TicketPayment;
+
 
 class TicketController extends Controller
 {
@@ -71,6 +75,58 @@ class TicketController extends Controller
         $promos = Promo::where('activated', 1)->get();
           return view('schedule.order', compact('ticket', 'promos'));
     }
+
+    public function createBarcode(Request $request)
+    {
+        $kodeBarcode = 'TICKET' . $request->ticket_id;
+        $qrImage = QrCode::format('svg')
+        ->size(300)
+        ->margin(2)
+        ->errorCorrection('H')
+        ->generate($kodeBarcode);
+
+        $filename = $kodeBarcode . '.svg';
+        $path = 'barcodes/' . $filename;
+
+        Storage::disk('public')->put($path, $qrImage);
+
+       $createData = TicketPayment::create([
+    'ticket_id' => $request->ticket_id,
+    'barcode_path' => $path,
+    'status' => 'process',
+    'booked_date'=> now()
+]);
+
+        $ticket = Ticket::find($request->ticket_id);
+        $totalPrice = $ticket->total_price;
+
+        if($request->promo_id != NULL){
+            $promo = Promo::find($request->promo_id);
+            if($promo['type'] == 'percent'){
+                $discount = $ticket['total_price'] * ($promo['discount'] / 100);
+            } else{
+                $discount = $promo['discount'];
+            }
+            $totalPrice = $ticket['total_price'] - $discount;
+        }
+        $updateTicket = Ticket::where('id', $request->ticket_id)->update([
+            'promo_id' => $request->promo_id,
+            'total_price' => $totalPrice
+        ]);
+
+        return response()->json([
+        'message' => 'berhasil membuat barcode',
+        'data'=> [
+        'ticket_id' => $request->ticket_id,
+        ]
+    ]);
+    }
+
+        public function ticketPaymentPage($ticketId)
+        {
+            $ticket = Ticket::where('id', $ticketId)->with(['schedule', 'promo', 'ticketPayment'])->first();
+            return view('schedule.payment', compact('ticket'));
+        }
 
     /**
      * Display the specified resource.
