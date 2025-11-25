@@ -76,7 +76,7 @@
                             <a class="nav-link" href="{{ route('cinemas.list') }}">Bioskop</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Tiket</a>
+                            <a class="nav-link" href="{{ route('tickets.index') }}">Tiket</a>
                         </li>
                     @endif
                 </ul>
@@ -112,9 +112,11 @@
         integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous">
     </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.1.0/mdb.umd.min.js"></script>
-    @stack('script')
-    <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 
+     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @stack('script')
 </body>
 
 </html>

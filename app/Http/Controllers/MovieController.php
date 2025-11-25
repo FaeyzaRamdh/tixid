@@ -316,4 +316,15 @@ class MovieController extends Controller
         //proses didonod
         return Excel::download(new MovieExport, $fileName);
     }
+
+    public function chart()
+    {
+         $movieActive = Movie::where('activated', 1)->count();
+        $movieNonActive = Movie::where('activated', 0)->count();
+        // yg diperlUKAN  jumlah data gunakan count untuk mengjhitung
+        $data = [$movieActive, $movieNonActive];
+        return response()->json([
+            'data' => $data
+        ]);
+    }
 }

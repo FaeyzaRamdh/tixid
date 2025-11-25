@@ -9,6 +9,11 @@ use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 
+Route::get('/env-test', function() {
+    return env('APP_NAME') . ' - ' . env('DB_DATABASE');
+});
+
+
 Route::get('/', [MovieController::class,'home'])->name('home');
 Route::get('/schedules/{movie_id}', [MovieController::class, 'movieSchedule'])->name('schedules.detail');
 Route::get('/movies/active', [MovieController::class,'homeMovie'])->name('home.movies.active');
@@ -19,9 +24,15 @@ Route::middleware('isUser')->group(function() {
     // admin dashboard disimpan di group middleware afar dapat menggunakan middleware tersebut
  Route::get('/schedules/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'] )->name 
 ('schedules.show.seats');
-Route::prefix('tickets')->name('tickets.')->group(function(){
-    Route::post('/', [TicketController::class, 'store'])->name('store');
-    Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+ Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::post('/', [TicketController::class, 'store'])->name('store');
+        Route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+        Route::post('/barcode', [TicketController::class, 'createBarcode'])->name('barcode');
+        Route::get('/{ticketId}/payment', [TicketController::class, 'ticketPaymentPage'])->name('payment.page');
+        Route::patch('/{ticketId}/payment/update', [TicketController::class, 'updateStatusTicket'])->name('payment.update');
+        Route::get('/{ticketId}/show', [TicketController::class, 'show'])->name('show');
+        Route::get('/{ticketId}/export/pdf', [TicketController::class, 'exportPdf'])->name('export.pdf');
+        Route::get('/list', [TicketController::class, 'index'])->name('index');
 });
 });
 
@@ -55,6 +66,8 @@ Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 // prefix awalan path. agar /admin ditulis sekali dan bias digunakan berkali kali
 // name : agar di name hanya menulis sekali dan bisa digunakan berkali kali
 Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function() {
+    Route::get('/tickets/chart', [TicketController::class, 'dataChart'])->name('tickets.chart');
+
     // admin dashboard disimpan di group middleware afar dapat menggunakan middleware tersebut
     Route::get('/dashboard',function() {
         return view('admin.dashboard');
@@ -95,6 +108,7 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
 
     //isi data film
     Route::prefix('/movies')->name('movies.')->group(function () {
+         Route::get('/chart', [MovieController::class, 'chart'])->name('chart');
         Route::get('/datatables', [MovieController::class,'dataTables'])->name('datatables');
         Route::get('/', [MovieController::class,'index'])->name('index');
         Route::get('/create', [MovieController::class,'create'])->name('create');

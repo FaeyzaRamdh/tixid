@@ -35,10 +35,22 @@
                             <div style="width: 50px;"></div>
                     
                         @endif
+                        {{--  iin array item --}}
+                        @php
+                        $seat = $row . " - " . $col;
+                        @endphp
+                        @if (in_array($seat, $soldSeatsFormat))
+                        
+                           <div
+                            style="width: 50px; height: 50px; text-align: center; font-weight: bold; color: black; padding-top: 10px; background: #eaeaea; margin: 5px; border-radius: 8px;">{{ $row }}-{{ $col }}</div>
+                        @else
+                        
+
                         <div
                             style="width: 50px; height: 50px; text-align: center; font-weight: bold; color: white; padding-top: 10px; cursor: pointer; background: #112646; margin: 5px; border-radius: 8px;"onclick="selectSeat('{{ $schedule->price }}','{{ $row }} ',' {{ $col }}', this)">
                             {{ $row }} - {{ $col }}
                         </div>
+                    @endif
                     @endforeach
                 </div>
             @endforeach

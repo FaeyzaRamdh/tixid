@@ -34,6 +34,6 @@ class Ticket extends Model
     }
 
     public function ticketPayment(){
-        return $this->hasOne(TicketPayment::class);
+        return $this->hasOne(Payment::class);
     }
 }
